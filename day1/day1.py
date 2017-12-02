@@ -15,7 +15,13 @@ def main():
     with open("input") as f:
         inp = f.read().strip()
 
-    print("Result:", sum_matching(inp, len(inp) // 2))
+    part = input("Which part?[1]/2: ")
+    if part == "2":
+        step = len(inp) // 2
+    else:
+        step = 1
+
+    print("Result:", sum_matching(inp, step))
 
 
 if __name__ == "__main__":

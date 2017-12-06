@@ -1,7 +1,9 @@
 def redistribution_cycles(seq):
-    """Redistributes the largest number in a sequence until we get a repeated configuration of numbers"""
-    seen = set()
-    seen.add(get_configuration_id(seq))
+    """
+    Redistributes the largest number in a sequence until we get a repeated configuration of numbers
+    and returns the total cycles it took, and the cycle difference between the repeated states
+    """
+    seen = {get_configuration_id(seq): 0}  # Store the cycle at which we found the state
     cycles = 0
     while True:
         stash = max(seq)  # Number to redistribute
@@ -18,8 +20,8 @@ def redistribution_cycles(seq):
         # If we've seen the resulting configuration, we're done
         new_config = get_configuration_id(seq)
         if new_config in seen:
-            return cycles
-        seen.add(new_config)
+            return cycles, cycles - seen[new_config]
+        seen[new_config] = cycles
 
 
 def get_configuration_id(seq):
@@ -31,7 +33,9 @@ def main():
     with open("input") as f:
         seq = [int(x) for x in f.read().split()]
 
-    print("Part 1:", redistribution_cycles(seq))
+    cycles, cycle_diff = redistribution_cycles(seq)
+    print("Part 1:", cycles)
+    print("Part 2:", cycle_diff)
 
 
 if __name__ == "__main__":

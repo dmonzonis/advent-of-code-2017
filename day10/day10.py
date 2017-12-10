@@ -6,17 +6,14 @@ def to_ascii(string):
     return [ord(c) for c in string]
 
 
-def knot_round(seq, lengths, reset=False):
+def knot_round(seq, lengths, rounds=64):
     """
     Given a sequence of numbers and a list of lengths, modifies the sequence after a single round of the
     knot hash algorithm, and saves variable status since it's a generator
     """
     limit = len(seq)
     left = skip = 0
-    while True:
-        if reset:
-            left = skip = 0
-
+    for round in range(rounds):
         for length in lengths:
             right = (left + length) % limit
             if left >= right and length > 0:
@@ -36,15 +33,14 @@ def knot_round(seq, lengths, reset=False):
 
 def knot_hash(string):
     """Returns the knot hash of a string"""
-    ROUNDS = 64
     # Get the length list from the string, and add the constant suffix
     lengths = to_ascii(string)
     lengths.extend([17, 31, 73, 47, 23])
     seq = list(range(256))
     hash_generator = knot_round(seq, lengths)
     # Execute all the rounds of the algorithm with the same length list, updating seq each time
-    for _ in range(ROUNDS):
-        next(hash_generator)
+    for _ in hash_generator:
+        pass
 
     # XOR each chunk of 16 numbers and format as a hex string
     code = [reduce((lambda x, y: x ^ y), seq[i:i + 16]) for i in range(0, len(seq), 16)]

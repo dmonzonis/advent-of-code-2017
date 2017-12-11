@@ -28,11 +28,27 @@ def follow_path(path):
     return pos
 
 
+def furthest_distance_path(path):
+    """
+    Starting from the origin, (0, 0), follows the path given as a list of direction strings
+    and returns the maximum distance it ever gets from the origin
+    """
+    pos = origin = (0, 0)
+    max = 0
+    for dir in path:
+        pos = neighbor(pos, dir)
+        dist = distance(origin, pos)
+        if dist > max:
+            max = dist
+    return max
+
+
 def main():
     with open("input") as f:
         path = [dir for dir in f.read().strip().split(',')]
 
     print("Part 1:", distance((0, 0), follow_path(path)))
+    print("Part 2:", furthest_distance_path(path))
 
 
 if __name__ == "__main__":

@@ -28,12 +28,26 @@ def bfs(graph, origin=0):
     return seen
 
 
+def bfs_groups(graph):
+    """Returns the total number of groups, a group being a connected component of the graph"""
+    seen = set()
+    groups = 0
+
+    for node in graph:
+        if node not in seen:
+            seen.update(bfs(graph, node))
+            groups += 1
+
+    return groups
+
+
 def main():
     with open("input") as f:
         connection_list = [line.strip() for line in f]
 
     graph = parse_connections(connection_list)
     print("Part 1:", len(bfs(graph)))
+    print("Part 2:", bfs_groups(graph))
 
 
 if __name__ == "__main__":

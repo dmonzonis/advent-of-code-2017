@@ -6,14 +6,26 @@ def spinlock(steps, insertions=2017):
     buff = [0]
     index = 0
     for value in range(1, insertions + 1):
-        index = (index + steps) % len(buff) + 1
+        index = (index + steps) % value + 1
         buff.insert(index, value)
     return buff
+
+
+def spinlock_second_value(steps, insertions=50000000):
+    """Return the second value in the final spinlock without generating the whole list."""
+    index = result = 0
+    for value in range(1, insertions + 1):
+        index = (index + steps) % value + 1
+        if index == 1:
+            result = value
+    return result
 
 
 def main():
     buff = spinlock(INPUT)
     print("Part 1:", buff[buff.index(2017) + 1])
+
+    print("Part 2:", spinlock_second_value(INPUT))
 
 
 if __name__ == "__main__":

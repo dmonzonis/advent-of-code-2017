@@ -20,10 +20,11 @@ def get_tile(roadmap, pos):
 
 
 def follow_roadmap(roadmap):
-    """Follow the roadmap until the end and return the list of characters encountered."""
+    """Follow the roadmap and return the list of characters encountered and steps taken."""
     direction = (0, 1)  # Start going down
     valid_tiles = ['-', '|', '+']  # Valid road tiles
     collected = []
+    steps = 1
     pos = (roadmap[0].index('|'), 0)  # Initial position in the form (x, y)
 
     while True:
@@ -39,20 +40,22 @@ def follow_roadmap(roadmap):
                 continue
             else:
                 # We got to the end of the road
-                return collected
+                return collected, steps
 
         elif tile not in valid_tiles:
             collected.append(tile)
 
         pos = new_pos
+        steps += 1
 
 
 def main():
     with open("input") as f:
         roadmap = f.read().split('\n')
 
-    collected = follow_roadmap(roadmap)
+    collected, steps = follow_roadmap(roadmap)
     print("Part 1:", ''.join(collected))
+    print("Part 2:", steps)
 
 
 if __name__ == "__main__":

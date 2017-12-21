@@ -16,14 +16,54 @@ class ParticleSystem:
         self._initial = deepcopy(self.system)
         self.time = 0
 
-    def update(self, t):
-        """Update the state of the system after after a time t has passed."""
+    def update(self, t, collisions=False):
+        """Update the state of the system after after a time t has passed.
+
+        If collisions is True, particles that collide during the process will be destroyed.
+        """
+        if not collisions:
+            self._update_without_collisions(t)
+        else:
+            self._update_with_collisions(t)
+
+    def _update_without_collisions(self, t):
         for particle in self.system:
             particle.update(t)
+
+    def _update_with_collisions(self, t):
+        for step in range(t):
+            self._update_without_collisions(1)
+            self.destroy_colliding()
 
     def reset(self):
         """Reset the system to the initial state."""
         self.system = deepcopy(self._initial)
+
+    def destroy_colliding(self):
+        """Remove any colliding particles from the system at the current state."""
+        done = False
+        while not done:
+            done = True
+            for particle in self.system:
+                # Check if particle is colliding
+                colliders = self.get_colliders(particle)
+                if colliders:
+                    done = False
+                    # Destroy colliding particles
+                    self.system.remove(particle)
+                    for other in colliders:
+                        self.system.remove(other)
+
+    def get_colliders(self, particle):
+        """Return a list of particles that collide with the given particle, excluding itself."""
+        colliders = []
+        for other in self.system:
+            if (other.pos == particle.pos).all() and other.id != particle.id:
+                colliders.append(other)
+        return colliders
+
+    def __len__(self):
+        return len(self.system)
 
 
 class Particle:
@@ -96,6 +136,10 @@ def main():
     particle_system = create_particle_system(initial_conditions)
     particle_system.update(1000000)
     print("Part 1:", find_closest_to_origin(particle_system))
+
+    particle_system.reset()
+    particle_system.update(1000, collisions=True)
+    print("Part 2:", len(particle_system))
 
 
 if __name__ == "__main__":

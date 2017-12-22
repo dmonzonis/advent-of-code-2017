@@ -76,8 +76,12 @@ def main():
 
     rules = parse_rules(inp)
     pattern = pattern_to_matrix('.#./..#/###')
+
     art = generate_art(pattern, rules, 5)
     print("Part 1:", np.sum(art))
+
+    art = generate_art(art, rules, 13)
+    print("Part 2:", np.sum(art))
 
 
 if __name__ == "__main__":

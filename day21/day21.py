@@ -1,29 +1,28 @@
 import numpy as np
 
 
-def _check_match_rotation(a, b):
-    for rot in range(4):
-        if (a == b).all():
-            return True
-        a = np.rot90(a)
-    return False
+class Rulebook:
+    """Holds the rules to enhance blocks of art."""
 
+    def __init__(self, rules):
+        self.rules = rules
+        self.cache = {}
+        self._build_cache()
 
-def check_match(a, b):
-    """Check if pattern a matches pattern b by rotating and flipping."""
-    if a.shape != b.shape:
-        return False
-    if _check_match_rotation(a, b):
-        return True
-    a = np.flip(a, axis=1)
-    return _check_match_rotation(a, b)
+    def _build_cache(self):
+        # Map every possible rotation and flipped rotation of the same input to the same result
+        for rule, enhanced in self.rules:
+            for rot in range(4):
+                self.cache[matrix_to_pattern(rule)] = enhanced
+                rule = np.rot90(rule)
+            rule = np.flip(rule, axis=1)
+            for rot in range(4):
+                self.cache[matrix_to_pattern(rule)] = enhanced
+                rule = np.rot90(rule)
 
-
-def enhance_pattern(pattern, rules):
-    """Search for a matching pattern in the rules and apply the corresponding enhancing rule."""
-    for rule, enhanced in rules:
-        if check_match(pattern, rule):
-            return enhanced
+    def enhance_pattern(self, pattern):
+        """Search for a matching pattern in the rules and apply the corresponding enhancing rule."""
+        return self.cache[matrix_to_pattern(pattern)]
 
 
 def pattern_to_matrix(pattern):
@@ -34,8 +33,22 @@ def pattern_to_matrix(pattern):
     return np.array(pattern) == '#'
 
 
+def matrix_to_pattern(matrix):
+    """Convert a pattern given as a boolean numpy array to a string pattern."""
+    res = ''
+    for i in range(matrix.shape[0]):
+        for j in range(matrix.shape[1]):
+            # Translate Trues to '#' and Falses to '.'
+            if matrix[i, j]:
+                res += '#'
+            else:
+                res += '.'
+        res += '/'
+    return res[:-1]  # We don't want the last slash
+
+
 def parse_rules(inp):
-    """Given a set of rules written as strings, return a list of tuples with matrix rules."""
+    """Given a set of rules written as strings, return the corresponding rulebook."""
     rules = []
     for line in inp:
         pattern, result = line.split(' => ')
@@ -43,10 +56,10 @@ def parse_rules(inp):
             (pattern_to_matrix(pattern),
              pattern_to_matrix(result))
         )
-    return rules
+    return Rulebook(rules)
 
 
-def generate_art(pattern, rules, iterations):
+def generate_art(pattern, rulebook, iterations):
     """Apply the enhancement rules for n iterations, using an initial pattern."""
     for _ in range(iterations):
         dim = pattern.shape[0]
@@ -61,7 +74,7 @@ def generate_art(pattern, rules, iterations):
         for i in range(0, dim, step):
             pattern_row = np.array([], dtype=bool).reshape(step + 1, 0)
             for j in range(0, dim, step):
-                enhanced = enhance_pattern(pattern[i:i + step, j:j + step], rules)
+                enhanced = rulebook.enhance_pattern(pattern[i:i + step, j:j + step])
                 pattern_row = np.hstack((pattern_row, enhanced))
             art = np.vstack((art, pattern_row))
 
@@ -74,13 +87,13 @@ def main():
     with open("input") as f:
         inp = f.read().splitlines()
 
-    rules = parse_rules(inp)
+    rulebook = parse_rules(inp)
     pattern = pattern_to_matrix('.#./..#/###')
 
-    art = generate_art(pattern, rules, 5)
+    art = generate_art(pattern, rulebook, 5)
     print("Part 1:", np.sum(art))
 
-    art = generate_art(art, rules, 13)
+    art = generate_art(art, rulebook, 13)
     print("Part 2:", np.sum(art))
 
 

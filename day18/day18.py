@@ -80,7 +80,7 @@ def recover_frequency(instructions):
             if parse_value(i[1], register) != 0:
                 return last
         elif fun == 'jgz':
-            if parse_value(i[1], register) != 0:
+            if parse_value(i[1], register) > 0:
                 n += parse_value(i[2], register)
                 continue
         n += 1

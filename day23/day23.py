@@ -38,6 +38,17 @@ def main():
 
     print("Part 1:", count_mults(instructions))
 
+    h = 0
+    # Initially, b is set to 107900
+    # and c is set to b + 17000 = 124900
+    for i in range(107900, 124900 + 1, 17):
+        for j in range(2, i):
+            if i % j == 0:
+                h += 1
+                break
+
+    print("Part 2:", h)
+
 
 if __name__ == "__main__":
     main()

@@ -47,11 +47,37 @@ def find_strongest(pieces):
     return max_strength
 
 
+def find_strongest_longest(pieces):
+    """Find strongest bridge from the longest bridges constructable with a list of pieces."""
+    max_strength = max_length = 0
+    queue = [Bridge(pieces)]
+    while queue:
+        bridge = queue.pop(0)
+        fitting = bridge.fitting_pieces()
+        if not fitting:
+            length = len(bridge.bridge)
+            if length > max_length:
+                max_length = length
+                max_strength = bridge.strength()
+            elif length == max_length:
+                strength = bridge.strength()
+                if strength > max_strength:
+                    max_strength = strength
+                    max_length = length
+            continue
+
+        for piece in fitting:
+            queue.append(bridge.add_piece(piece))
+
+    return max_strength
+
+
 def main():
     with open("input") as f:
         pieces = [[int(x), int(y)] for x, y in [p.split('/') for p in f.read().splitlines()]]
 
-    print("Part 1:", find_strongest(pieces))
+    #  print("Part 1:", find_strongest(pieces))
+    print("Part 2:", find_strongest_longest(pieces))
 
 
 if __name__ == "__main__":
